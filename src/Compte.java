@@ -8,75 +8,63 @@ public class Compte {
     private Scanner keyb = new Scanner(System.in);
     private double pValcreditee = 0;
     private String numeroConsulte;
-    private LigneComptable ligne;
 
-    public String getTypeCompte() {
-        return typeCompte;
-    }
+    public static final int NBLigne = 10;
+    private LigneComptable [] ligne;
+    private int NBLigneReel;
 
-    public String getNumeroCompte() {
-        return numeroCompte;
-    }
+    public String getTypeCompte() { return typeCompte; }
+    public String getNumeroCompte() { return numeroCompte; }
+    protected double getSolde() { return solde; }
+    public double getpValcreditee() { return pValcreditee; }
+    public String getNumeroConsulte() { return numeroConsulte; }
+    public int getNBLigneReel() { return NBLigneReel; }
+    public void setNBLigneReel(int NBLigneReel) { this.NBLigneReel = NBLigneReel; }
+    public void setSolde(double solde) { this.solde = solde; }
+    public void setNumeroCompte(String numeroCompte){ this.numeroCompte = numeroCompte; }
 
-    protected double getSolde() {
-        return solde;
-    }
-
-    public Scanner getKeyb() {
-        return keyb;
-    }
-
-
-    public double getpValcreditee() {
-        return pValcreditee;
-    }
-
-    public String getNumeroConsulte() {
-        return numeroConsulte;
-    }
-
-    public LigneComptable getLigne() {
-        return ligne;
-    }
-
-    public void setLigne(LigneComptable element) {
-        ligne = element;
-    }
-
-    public void setSolde(double solde) {
-        this.solde = solde;
-    }
-
-    public void setNumeroCompte(String numeroCompte){
-        this.numeroCompte = numeroCompte;
-    }
-
+    public LigneComptable[] getLigne() { return ligne; }
+    public void setLigne(LigneComptable[] ligne) { this.ligne = ligne; }
 
     public Compte() {
+        ligne = new LigneComptable[NBLigne];
+        NBLigneReel = -1;
         typeCompte = controlType();
         keyb.nextLine();
         System.out.println("Numéro du compte:");
         numeroCompte = keyb.nextLine();
         pValcreditee = controlValInit();
+        solde = pValcreditee;
     }
 
     public Compte(String typeCompte, String numeroCompte, double pValcreditee) {
+        ligne = new LigneComptable[NBLigne];
+        NBLigneReel = -1;
         this.typeCompte = typeCompte;
         this.numeroCompte = numeroCompte;
         this.pValcreditee = pValcreditee;
+        this.solde = pValcreditee;
     }
 
     public void afficherCpte() {
         System.out.println("Entrez le numéro du compte que vous souhaitez consulter:");
-        keyb.nextLine();
+        //keyb.nextLine();
         numeroConsulte = keyb.nextLine();
         if (numeroConsulte.equals(numeroCompte)) {
-            System.out.println("Le compte de numéro: " + numeroCompte + " a pour :");
+            System.out.println("Le compte #:" + numeroCompte);
             System.out.println("Type:" + typeCompte);
             System.out.println("Valeur initiale: " + pValcreditee);
+            System.out.println("Solde actuel : " + solde);
 
-            if (ligne != null) {
-                ligne.afficherLigneComptable(numeroConsulte);
+
+            if (NBLigneReel > 0) {
+                System.out.println("\n--- Lignes comptables (" + NBLigneReel + ") ---");
+                for (int i = 0; i < NBLigneReel; i++) {
+                    if (ligne[i] != null) {
+                        ligne[i].afficherLigneComptable(numeroCompte);
+                        System.out.println("---------------------");
+                    }
+                }
             } else {
                 System.out.println("Aucune ligne comptable associée.");
             }
@@ -85,15 +73,33 @@ public class Compte {
         }
     }
 
-    public void creerLigne() {
-        ligne = new LigneComptable();
-        ligne.creerLigneComptable();
-
-        if (ligne.getTypeOperation().equalsIgnoreCase("Débit")) {
-            solde = pValcreditee - ligne.getMontant();
-        } else if (ligne.getTypeOperation().equalsIgnoreCase("Crédit")) {
-            solde = pValcreditee + ligne.getMontant();
+        private void decalerLesLignes() {
+        for (int i = 1; i < NBLigne; i++) {
+            ligne[i - 1] = ligne[i];
         }
+        ligne[NBLigne - 1] = null;
+    }
+
+    public void creerLigne() {
+        NBLigneReel++;
+        LigneComptable nouvelle = new LigneComptable();
+        if (NBLigneReel < NBLigne){
+            ligne[NBLigneReel] = nouvelle;
+        }else {
+            decalerLesLignes();
+            ligne[NBLigne - 1] = nouvelle;
+            NBLigneReel = NBLigne;
+        }
+        if (nouvelle.getTypeOperation().equalsIgnoreCase("Débit") ||
+                nouvelle.getTypeOperation().equalsIgnoreCase("Debit")) {
+            solde -= nouvelle.getMontant();
+        } else if (nouvelle.getTypeOperation().equalsIgnoreCase("Crédit") ||
+                nouvelle.getTypeOperation().equalsIgnoreCase("Credit")) {
+            solde += nouvelle.getMontant();
+        }
+
+
+
     }
 
     private String controlType() {
@@ -124,6 +130,8 @@ public class Compte {
         } while (valInit < 0);
         return valInit;
     }
+
+
 }
 
 

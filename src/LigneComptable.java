@@ -28,23 +28,27 @@ public class LigneComptable {
     public String getTypeOperation(){
         return typeOperation;
     }
-    public Scanner getKeyboard(){
-        return keyboard;
-    }
 
-    public  LigneComptable(){
-        System.out.println("Aucune ligne comptable associée.");
-    }
+    public LigneComptable(){
 
-    public void creerLigneComptable(){
         System.out.println("Numéro du compte concerné:");
         numCompte = keyboard.nextLine();
+
         System.out.println("Date de l'opération:");
         date = keyboard.nextLine();
+
         libelle = controlMotif();
+
         System.out.println("Montant de l'opération:");
+        while (!keyboard.hasNextDouble()) {
+            System.out.println("Montant invalide. Reprends :");
+            keyboard.nextLine();
+        }
         montant = keyboard.nextDouble();
+        keyboard.nextLine();
+
         modePaiement = controlMode();
+
         System.out.println("Type d'opération ( Débit ou Crédit.)");
         typeOperation = keyboard.nextLine();
 
@@ -52,7 +56,7 @@ public class LigneComptable {
     }
 
     public void afficherLigneComptable(String numcompteConsultee){
-            System.out.println("Les lignes comptables associées au compte de numéro "+numcompteConsultee+":");
+            System.out.println("Compte:"+numcompteConsultee);
             System.out.println("Date de l'opération: "+date);
             System.out.println("Libellé de l'opération: "+libelle);
             System.out.println("Montant de l'opération :"+montant);
